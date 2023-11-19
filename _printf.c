@@ -1,54 +1,50 @@
 #include "main.h"
+#include <unistd.h>
+#include <stdarg.h>
+
 /**
- * _printf - print formated text to output
+ * _printf - Prints output according to a format.
+ * @format: The format string.
  *
- * @format: the formated string
- * Return: the no of bytes
+ * Return: The number of characters printed.
  */
 int _printf(const char *format, ...)
 {
-	unsigned int pret = 0, ij, count, di_count = 0;
+va_list args;
+int count = 0;
+char c, *str;
 
-	va_list args;
+va_start(args, format);
+while (*format)
+{
+if (*format == '%')
+{
+format++;
 
-	if (!format || (format[0] == '%' && format[1] == '\0'))
-		return (-1);
-	va_start(args, format);
-
-	for (ij = 0; format[ij] != '\0'; ij++)
-	{
-		if (format[ij] != '%')
-		{
-			my_putchar(format[ij]);
-		}
-		else if (format[ij] == '%' && format[ij + 1] == 'c')
-		{
-			my_putchar(va_arg(args, int));
-			ij++;
-		}
-		else if (format[ij] == '%' && format[ij + 1] == 's')
-		{
-			count = dee_puts(va_arg(args, char *));
-			pret += (count - 1);
-			ij++;
-		}
-		else if (format[ij] == '%' && (format[ij + 1] == '%'))
-		{
-			my_putchar('%');
-			ij++;
-		}
-		else if (format[ij + 1] == 'd' || format[ij + 1] == 'i')
-		{
-			di_count += _putint(va_arg(args, int));
-			ij++;
-			pret += (di_count - 1);
-		}
-		else
-		{
-			my_putchar('%');
-		}
-		pret += 1;
-	}
-	va_end(args);
-	return (pret);
+switch (*format)
+{
+case 'c':
+c = va_arg(args, int);
+count += write(1, &c, 1);
+break;
+case 's':
+str = va_arg(args, char *);
+while (*str)
+count += write(1, str++, 1);
+break;
+case '%':
+count += write(1, "%", 1);
+break;
+default:
+count += write(1, format, 1);
+break;
 }
+}
+else
+count += write(1, format, 1);
+format++;
+}
+va_end(args);
+return (count);
+}
+
